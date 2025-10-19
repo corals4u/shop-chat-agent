@@ -8,9 +8,7 @@
   'use strict';
 
   // >>> Central API base. Can be overridden by Liquid-injected global.
-  const API_BASE = (typeof window !== 'undefined' && window.SHOP_CHAT_API_BASE)
-    ? window.SHOP_CHAT_API_BASE
-    : "https://corals4u-chat-agent.onrender.com";
+  const API_BASE = "https://corals4u-chat-agent.onrender.com";
 
   /**
    * Application namespace to prevent global scope pollution
