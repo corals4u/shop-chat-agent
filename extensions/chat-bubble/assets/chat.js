@@ -6,6 +6,9 @@
  */
 (function() {
   'use strict';
+  // >>> Point the widget at your hosted backend
+const API_BASE = "https://corals4u-chat-agent.onrender.com";
+
 
   /**
    * Application namespace to prevent global scope pollution
@@ -481,7 +484,7 @@
             prompt_type: promptType
           });
 
-          const streamUrl = 'https://localhost:3458/chat';
+          const streamUrl = `${API_BASE}/chat`;
           const shopId = window.shopId;
 
           const response = await fetch(streamUrl, {
@@ -493,6 +496,11 @@
             },
             body: requestBody
           });
+
+          if (!response.ok || !response.body) {
+          throw new Error(`Bad response: ${response.status}`);
+}
+
 
           const reader = response.body.getReader();
           const decoder = new TextDecoder();
@@ -630,7 +638,7 @@
           messagesContainer.appendChild(loadingMessage);
 
           // Fetch history from the server
-          const historyUrl = `https://localhost:3458/chat?history=true&conversation_id=${encodeURIComponent(conversationId)}`;
+          const historyUrl = `${API_BASE}/chat?history=true&conversation_id=${encodeURIComponent(conversationId)}`;
           console.log('Fetching history from:', historyUrl);
 
           const response = await fetch(historyUrl, {
@@ -779,8 +787,7 @@
           attemptCount++;
 
           try {
-            const tokenUrl = 'https://localhost:3458/auth/token-status?conversation_id=' +
-              encodeURIComponent(conversationId);
+            const tokenUrl = `${API_BASE}/auth/token-status?conversation_id=${encodeURIComponent(conversationId)}`;
             const response = await fetch(tokenUrl);
 
             if (!response.ok) {
