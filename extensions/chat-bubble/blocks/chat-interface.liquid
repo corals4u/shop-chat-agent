@@ -30,14 +30,18 @@
   </div>
 </div>
 
-<script src="{{ 'chat.js' | asset_url }}" defer></script>
+{%- comment -%} Define globals BEFORE chat.js loads {%- endcomment -%}
 <script>
+  window.SHOP_CHAT_API_BASE = "https://corals4u-chat-agent.onrender.com";
   window.shopChatConfig = {
     promptType: {{ block.settings.system_prompt | json }},
     welcomeMessage: {{ block.settings.welcome_message | json }}
   };
   window.shopId = {{ shop.id }};
 </script>
+
+{%- comment -%} Force newest asset with cache-busting {%- endcomment -%}
+<script src="{{ 'chat.js' | asset_url }}?v={{ 'now' | date: '%s' }}" defer></script>
 
 {% schema %}
 {
@@ -61,14 +65,8 @@
       "id": "system_prompt",
       "label": "System Prompt",
       "options": [
-        {
-          "value": "standardAssistant",
-          "label": "Standard Assistant"
-        },
-        {
-          "value": "enthusiasticAssistant",
-          "label": "Enthusiastic Assistant"
-        }
+        { "value": "standardAssistant", "label": "Standard Assistant" },
+        { "value": "enthusiasticAssistant", "label": "Enthusiastic Assistant" }
       ],
       "default": "standardAssistant"
     }
