@@ -1,24 +1,26 @@
-FROM node:18-alpine
+FROM node:22-alpine
 RUN apk add --no-cache openssl
 
 EXPOSE 3000
-
 WORKDIR /app
 
 ENV NODE_ENV=production
+# relax engine checks that shout about Node >=20 (we're on 22 anyway)
+ENV NPM_CONFIG_ENGINE_STRICT=false
 
 COPY package.json package-lock.json* ./
 
-# 🩵 Fix dependency conflict by allowing legacy peer deps
-RUN npm ci --omit=dev --legacy-peer-deps && npm cache clean --force
+# Use install (not ci) because upstream lockfile is out of sync
+# and allow legacy peer deps to bypass transient peer conflicts
+RUN npm install --omit=dev --legacy-peer-deps && npm cache clean --force
 
-# Remove CLI packages since we don't need them in production by default.
-# Remove this line if you want to run CLI commands in your container.
-RUN npm remove @shopify/cli
+# Remove CLI if present, but don't fail if it's not installed
+RUN npm remove @shopify/cli || true
 
 COPY . .
 
 RUN npm run build
 
 CMD ["npm", "run", "docker-start"]
+
 
