@@ -6,9 +6,11 @@
  */
 (function() {
   'use strict';
-  // >>> Point the widget at your hosted backend
-const API_BASE = "https://corals4u-chat-agent.onrender.com";
 
+  // >>> Central API base. Can be overridden by Liquid-injected global.
+  const API_BASE = (typeof window !== 'undefined' && window.SHOP_CHAT_API_BASE)
+    ? window.SHOP_CHAT_API_BASE
+    : "https://corals4u-chat-agent.onrender.com";
 
   /**
    * Application namespace to prevent global scope pollution
@@ -251,7 +253,7 @@ const API_BASE = "https://corals4u-chat-agent.onrender.com";
         try {
           ShopAIChat.API.streamResponse(userMessage, conversationId, messagesContainer);
         } catch (error) {
-          console.error('Error communicating with Claude API:', error);
+          console.error('Error communicating with API:', error);
           ShopAIChat.UI.removeTypingIndicator();
           this.add("Sorry, I couldn't process your request at the moment. Please try again later.", 'assistant', messagesContainer);
         }
@@ -416,7 +418,7 @@ const API_BASE = "https://corals4u-chat-agent.onrender.com";
           const unorderedMatch = line.match(/^\s*([-*])\s+(.*)/);
           const orderedMatch = line.match(/^\s*(\d+)[\.)]\s+(.*)/);
 
-          if (unorderedMatch) {
+        if (unorderedMatch) {
             if (currentList !== 'ul') {
               if (currentList === 'ol') {
                 htmlContent += `<ol start="${startNumber}">` + listItems.join('') + '</ol>';
@@ -498,9 +500,8 @@ const API_BASE = "https://corals4u-chat-agent.onrender.com";
           });
 
           if (!response.ok || !response.body) {
-          throw new Error(`Bad response: ${response.status}`);
-}
-
+            throw new Error(`Bad response: ${response.status}`);
+          }
 
           const reader = response.body.getReader();
           const decoder = new TextDecoder();
@@ -527,8 +528,13 @@ const API_BASE = "https://corals4u-chat-agent.onrender.com";
               if (line.startsWith('data: ')) {
                 try {
                   const data = JSON.parse(line.slice(6));
-                  this.handleStreamEvent(data, currentMessageElement, messagesContainer, userMessage,
-                    (newElement) => { currentMessageElement = newElement; });
+                  this.handleStreamEvent(
+                    data,
+                    currentMessageElement,
+                    messagesContainer,
+                    userMessage,
+                    (newElement) => { currentMessageElement = newElement; }
+                  );
                 } catch (e) {
                   console.error('Error parsing event data:', e, line);
                 }
@@ -538,8 +544,11 @@ const API_BASE = "https://corals4u-chat-agent.onrender.com";
         } catch (error) {
           console.error('Error in streaming:', error);
           ShopAIChat.UI.removeTypingIndicator();
-          ShopAIChat.Message.add("Sorry, I couldn't process your request. Please try again later.",
-            'assistant', messagesContainer);
+          ShopAIChat.Message.add(
+            "Sorry, I couldn't process your request. Please try again later.",
+            'assistant',
+            messagesContainer
+          );
         }
       },
 
