@@ -1,3 +1,7 @@
 name = "chat-bubble"
 type = "theme"
 
+[[extensions.targeting]]
+target = "body"
+
+
